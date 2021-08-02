@@ -1,5 +1,3 @@
-require("@babel/polyfill");
-import { startCase } from "lodash";
 import Search from "./model/Search";
 import { DOMelements, renderLoader, clearLoader } from "./view/base";
 import * as searchView from "./view/searchView";
@@ -9,143 +7,13 @@ import * as listView from "./view/listView";
 import { renderRecipe, clearRecipe, activeRecipe } from "./view/recipeView";
 import Like from "./model/Like";
 import * as likesView from "./view/likeView";
-
-const foods = [
-  "carrot",
-  "broccoli",
-  "asparagus",
-  "cauliflower",
-  "corn",
-  "cucumber",
-  "green pepper",
-  "lettuce",
-  "mushrooms",
-  "onion",
-  "potato",
-  "pumpkin",
-  "red pepper",
-  "tomato",
-  "beetroot",
-  "brussel sprouts",
-  "peas",
-  "zucchini",
-  "radish",
-  "sweet potato",
-  "artichoke",
-  "leek",
-  "cabbage",
-  "celery",
-  "chili",
-  "garlic",
-  "basil",
-  "coriander",
-  "parsley",
-  "dill",
-  "rosemary",
-  "oregano",
-  "cinnamon",
-  "saffron",
-  "green bean",
-  "bean",
-  "chickpea",
-  "lentil",
-  "apple",
-  "apricot",
-  "avocado",
-  "banana",
-  "blackberry",
-  "blackcurrant",
-  "blueberry",
-  "boysenberry",
-  "cherry",
-  "coconut",
-  "fig",
-  "grape",
-  "grapefruit",
-  "kiwifruit",
-  "lemon",
-  "lime",
-  "lychee",
-  "mandarin",
-  "mango",
-  "melon",
-  "nectarine",
-  "orange",
-  "papaya",
-  "passion fruit",
-  "peach",
-  "pear",
-  "pineapple",
-  "plum",
-  "pomegranate",
-  "quince",
-  "raspberry",
-  "strawberry",
-  "watermelon",
-  "salad",
-  "pizza",
-  "pasta",
-  "popcorn",
-  "lobster",
-  "steak",
-  "bbq",
-  "pudding",
-  "hamburger",
-  "pie",
-  "cake",
-  "sausage",
-  "tacos",
-  "kebab",
-  "poutine",
-  "seafood",
-  "chips",
-  "fries",
-  "masala",
-  "paella",
-  "som tam",
-  "chicken",
-  "toast",
-  "marzipan",
-  "tofu",
-  "ketchup",
-  "hummus",
-  "chili",
-  "maple syrup",
-  "parma ham",
-  "fajitas",
-  "champ",
-  "lasagna",
-  "poke",
-  "chocolate",
-  "croissant",
-  "arepas",
-  "bunny chow",
-  "pierogi",
-  "donuts",
-  "rendang",
-  "sushi",
-  "ice cream",
-  "duck",
-  "curry",
-  "beef",
-  "goat",
-  "lamb",
-  "turkey",
-  "pork",
-  "fish",
-  "crab",
-  "bacon",
-  "ham",
-  "pepperoni",
-  "salami",
-  "ribs",
-];
+import * as foodsView from "./view/foodsView";
 
 const state = {};
+foodsView.renderFoodMenu();
 
-const controlSearch = async () => {
+const controlSearch = async (query) => {
   //Вэбээс хайлтын түлхүүр үгийг гаргаж авна.
-  const query = searchView.getInput();
 
   if (query) {
     // шинээр хайлтын обьектыг үүсгэнэ
@@ -161,6 +29,7 @@ const controlSearch = async () => {
 
     //хайлтын үр дүнг дэлгэцэнд үзүүлнэ.
     clearLoader();
+
     if (state.search.result == undefined) {
       DOMelements.searchInput.value = "";
       DOMelements.searchInput.placeholder = "Хайлт илэрцгүй.";
@@ -170,7 +39,16 @@ const controlSearch = async () => {
 
 DOMelements.searchForm.addEventListener("submit", (e) => {
   e.preventDefault();
-  controlSearch();
+  let searchByWord = searchView.getInput();
+  controlSearch(searchByWord);
+});
+
+document.querySelector(".foodMenu").addEventListener("click", (e) => {
+  e.preventDefault();
+  let searchByButton = e.target.closest(".food-menu-button").id;
+  if (searchByButton.includes("-"))
+    searchByButton = searchByButton.replace("-", " ");
+  controlSearch(searchByButton);
 });
 
 DOMelements.pageButtons.addEventListener("click", (e) => {
@@ -204,8 +82,9 @@ const controlRecipe = async () => {
   }
 };
 
-window.addEventListener("hashchange", controlRecipe);
-window.addEventListener("load", controlRecipe);
+["hashchange", "load"].forEach((e) =>
+  window.addEventListener(e, controlRecipe)
+);
 window.addEventListener("load", () => {
   if (!state.likes) state.likes = new Like();
   likesView.toggleLikeMenu(state.likes.getNumberOfLikes());
@@ -224,7 +103,6 @@ const controlList = () => {
 
 const controlLike = () => {
   if (!state.likes) state.likes = new Like();
-
   const currentRecipe = state.recipe.id;
   if (state.likes.isLiked(currentRecipe)) {
     state.likes.deleteLike(currentRecipe);

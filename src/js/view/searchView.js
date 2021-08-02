@@ -37,14 +37,15 @@ const createButton = (page, type, direction) => `
 const renderButtons = (currentPage, totalPages) => {
   let buttonHTML;
   if (totalPages == 1) {
+    buttonHTML = "";
   } else if (currentPage == 1 && totalPages > 1) {
     buttonHTML = createButton(currentPage + 1, "next", "right");
   } else if (currentPage == totalPages) {
     buttonHTML = createButton(currentPage - 1, "prev", "left");
-  } else {
+  } else if (currentPage > 1 && currentPage < totalPages) {
     buttonHTML = createButton(currentPage - 1, "prev", "left");
     buttonHTML += createButton(currentPage + 1, "next", "right");
-  }
+  } else buttonHTML = "";
 
   DOMelements.pageButtons.insertAdjacentHTML("afterbegin", buttonHTML);
 };

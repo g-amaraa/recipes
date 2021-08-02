@@ -1,4 +1,4 @@
-require("@babel/polyfill");
+require("@babel/polyfill/noConflict");
 import axios from "axios";
 
 export default class Search {
